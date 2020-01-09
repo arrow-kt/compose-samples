@@ -38,7 +38,6 @@ import androidx.ui.material.surface.Surface
 import androidx.ui.material.withOpacity
 import androidx.ui.tooling.preview.Preview
 import com.example.jetnews.data.getPostsWithImagesLoaded
-import com.example.jetnews.data.post2
 import com.example.jetnews.data.posts
 import com.example.jetnews.model.Post
 import com.example.jetnews.ui.darkThemeColors
@@ -109,8 +108,8 @@ fun TutorialPreviewTemplate(
     }
 }
 
-@Preview
-@Composable
-fun previewPostCardTop() {
-    PostCardTop(post = post2)
-}
+//@Preview
+//@Composable
+//fun previewPostCardTop() {
+//    PostCardTop(post = post2)
+//}

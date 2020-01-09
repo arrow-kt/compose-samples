@@ -37,11 +37,4 @@ class MainActivity : AppCompatActivity() {
             JetnewsApp()
         }
     }
-
-    @Composable
-    fun AlgebraicJetnewsApp() {
-//        val algebra = +memo { Algebra() }
-
-        JetnewsApp()
-    }
 }
