@@ -158,8 +158,8 @@ private fun sharePost(post: Post, context: Context) {
     context.startActivity(Intent.createChooser(intent, "Share post"))
 }
 
-@Preview
-@Composable
-fun previewArticle() {
-    ArticleScreen(post3.id)
-}
+//@Preview
+//@Composable
+//fun previewArticle() {
+//    ArticleScreen(post3.id)
+//}
