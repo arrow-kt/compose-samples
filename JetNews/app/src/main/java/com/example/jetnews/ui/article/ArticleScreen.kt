@@ -44,7 +44,7 @@ import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.res.vectorResource
 import com.example.jetnews.R
-import com.example.jetnews.data.posts
+import com.example.jetnews.data._posts
 import com.example.jetnews.model.Post
 import com.example.jetnews.ui.Screen
 import com.example.jetnews.ui.VectorImageButton
@@ -58,7 +58,7 @@ fun ArticleScreen(postId: String) {
 
     var showDialog by +state { false }
     // getting the post from our list of posts by Id
-    val post = posts.find { it.id == postId } ?: return
+    val post = _posts.find { it.id == postId } ?: return
 
     if (showDialog) {
         FunctionalityNotAvailablePopup {
@@ -156,8 +156,8 @@ private fun sharePost(post: Post, context: Context) {
     context.startActivity(Intent.createChooser(intent, "Share post"))
 }
 
-//@Preview
-//@Composable
-//fun previewArticle() {
+// @Preview
+// @Composable
+// fun previewArticle() {
 //    ArticleScreen(post3.id)
-//}
+// }

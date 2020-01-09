@@ -17,6 +17,9 @@
 package com.example.jetnews.ui.home
 
 import androidx.compose.Composable
+import androidx.compose.memo
+import androidx.compose.onActive
+import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Opacity
 import androidx.ui.core.Text
@@ -35,18 +38,34 @@ import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.withOpacity
 import androidx.ui.tooling.preview.Preview
 import com.example.jetnews.R
-import com.example.jetnews.data.posts
 import com.example.jetnews.model.Post
+import com.example.jetnews.safeSublist
 import com.example.jetnews.ui.Screen
 import com.example.jetnews.ui.VectorImageButton
 import com.example.jetnews.ui.navigateTo
 
 @Composable
 fun HomeScreen(openDrawer: () -> Unit) {
-    val postTop = posts[3]
-    val postsSimple = posts.subList(0, 2)
-    val postsPopular = posts.subList(2, 7)
-    val postsHistory = posts.subList(7, 10)
+    val algebra = +memo { HomeAlgebra() }
+    val (posts, postsCallback) = +state { emptyList<Post>() }
+
+    // TODO gotcha#1
+    // throw Exception("some error that is swallowed")
+
+    +onActive {
+        val d = algebra.getPosts(postsCallback).unsafeRunAsyncCancellable { }
+        onDispose(d)
+    }
+
+    HomeScreen2(posts = posts, openDrawer = openDrawer)
+}
+
+@Composable
+private fun HomeScreen2(posts: List<Post>, openDrawer: () -> Unit) {
+    val postTop = posts.getOrNull(3)
+    val postsSimple = posts.safeSublist(0, 2)
+    val postsPopular = posts.safeSublist(2, 7)
+    val postsHistory = posts.safeSublist(7, 10)
 
     Column {
         TopAppBar(
@@ -69,7 +88,8 @@ fun HomeScreen(openDrawer: () -> Unit) {
 }
 
 @Composable
-private fun HomeScreenTopSection(post: Post) {
+private fun HomeScreenTopSection(post: Post?) {
+    post ?: return
 
     Text(
         modifier = Spacing(top = 16.dp, left = 16.dp, right = 16.dp),
