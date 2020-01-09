@@ -32,20 +32,20 @@ import com.example.jetnews.model.Publication
  * Define hardcoded posts to avoid handling any non-ui operations.
  */
 
-val pietro = PostAuthor("Pietro Maggi", "https://medium.com/@pmaggi")
-val manuel = PostAuthor("Manuel Vivo", "https://medium.com/@manuelvicnt")
-val florina = PostAuthor(
+private val pietro = PostAuthor("Pietro Maggi", "https://medium.com/@pmaggi")
+private val manuel = PostAuthor("Manuel Vivo", "https://medium.com/@manuelvicnt")
+private val florina = PostAuthor(
     "Florina Muntenescu",
     "https://medium.com/@florina.muntenescu"
 )
-val jose =
+private val jose =
     PostAuthor("Jose Alcérreca", "https://medium.com/@JoseAlcerreca")
 
-val publication = Publication(
+private val publication = Publication(
     "Android Developers",
     "https://cdn-images-1.medium.com/max/258/1*u7oZc2_5mrkcFaxkXEyfYA@2x.png"
 )
-val paragraphsPost1 = listOf(
+private val paragraphsPost1 = listOf(
     Paragraph(
         ParagraphType.Text,
         "Working to make our Android application more modular, I ended up with a sample that included a set of on-demand features grouped inside a folder:"
@@ -177,7 +177,7 @@ val paragraphsPost1 = listOf(
     )
 )
 
-val paragraphsPost2 = listOf(
+private val paragraphsPost2 = listOf(
     Paragraph(
         ParagraphType.Text,
         "Dagger is a popular Dependency Injection framework commonly used in Android. It provides fully static and compile-time dependencies addressing many of the development and performance issues that have reflection-based solutions.",
@@ -449,7 +449,7 @@ val paragraphsPost2 = listOf(
     )
 )
 
-val paragraphsPost3 = listOf(
+private val paragraphsPost3 = listOf(
     Paragraph(
         ParagraphType.Text,
         "Learn how to get started converting Java Programming Language code to Kotlin, making it more idiomatic and avoid common pitfalls, by following our new Refactoring to Kotlin codelab, available in English \uD83C\uDDEC\uD83C\uDDE7, Chinese \uD83C\uDDE8\uD83C\uDDF3 and Brazilian Portuguese \uD83C\uDDE7\uD83C\uDDF7.",
@@ -534,7 +534,7 @@ val paragraphsPost3 = listOf(
     )
 )
 
-val paragraphsPost4 = listOf(
+private val paragraphsPost4 = listOf(
     Paragraph(
         ParagraphType.Text,
         "TL;DR: Expose resource IDs from ViewModels to avoid showing obsolete data."
@@ -626,7 +626,7 @@ val paragraphsPost4 = listOf(
     )
 )
 
-val paragraphsPost5 = listOf(
+private val paragraphsPost5 = listOf(
     Paragraph(
         ParagraphType.Text,
         "Working with collections is a common task and the Kotlin Standard Library offers many great utility functions. It also offers two ways of working with collections based on how they’re evaluated: eagerly — with Collections, and lazily — with Sequences. Continue reading to find out what’s the difference between the two, which one you should use and when, and what the performance implications of each are.",
@@ -923,7 +923,7 @@ val paragraphsPost5 = listOf(
     )
 )
 
-val post1 = Post(
+private val post1 = Post(
     id = "dc523f0ed25c",
     title = "A Little Thing about Android Module Paths",
     subtitle = "How to configure your module paths, instead of using Gradle’s default.",
@@ -939,7 +939,7 @@ val post1 = Post(
     imageThumbId = R.drawable.post_1_thumb
 )
 
-val post2 = Post(
+private val post2 = Post(
     id = "7446d8dfd7dc",
     title = "Dagger in Kotlin: Gotchas and Optimizations",
     subtitle = "Use Dagger in Kotlin! This article includes best practices to optimize your build time and gotchas you might encounter.",
@@ -955,7 +955,7 @@ val post2 = Post(
     imageThumbId = R.drawable.post_2_thumb
 )
 
-val post3 = Post(
+private val post3 = Post(
     id = "ac552dcc1741",
     title = "From Java Programming Language to Kotlin — the idiomatic way",
     subtitle = "Learn how to get started converting Java Programming Language code to Kotlin, making it more idiomatic and avoid common pitfalls, by…",
@@ -971,7 +971,7 @@ val post3 = Post(
     imageThumbId = R.drawable.post_3_thumb
 )
 
-val post4 = Post(
+private val post4 = Post(
     id = "84eb677660d9",
     title = "Locale changes and the AndroidViewModel antipattern",
     subtitle = "TL;DR: Expose resource IDs from ViewModels to avoid showing obsolete data.",
@@ -987,7 +987,7 @@ val post4 = Post(
     imageThumbId = R.drawable.post_4_thumb
 )
 
-val post5 = Post(
+private val post5 = Post(
     id = "55db18283aca",
     title = "Collections and sequences in Kotlin",
     subtitle = "Working with collections is a common task and the Kotlin Standard Library offers many great utility functions. It also offers two ways of…",

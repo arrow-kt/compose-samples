@@ -43,9 +43,7 @@ import androidx.ui.material.TopAppBar
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.res.vectorResource
-import androidx.ui.tooling.preview.Preview
 import com.example.jetnews.R
-import com.example.jetnews.data.post3
 import com.example.jetnews.data.posts
 import com.example.jetnews.model.Post
 import com.example.jetnews.ui.Screen
@@ -158,8 +156,8 @@ private fun sharePost(post: Post, context: Context) {
     context.startActivity(Intent.createChooser(intent, "Share post"))
 }
 
-@Preview
-@Composable
-fun previewArticle() {
-    ArticleScreen(post3.id)
-}
+//@Preview
+//@Composable
+//fun previewArticle() {
+//    ArticleScreen(post3.id)
+//}

@@ -33,9 +33,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.withOpacity
 import androidx.ui.res.imageResource
-import androidx.ui.tooling.preview.Preview
 import com.example.jetnews.R
-import com.example.jetnews.data.post3
 import com.example.jetnews.model.Post
 import com.example.jetnews.ui.JetnewsStatus
 import com.example.jetnews.ui.Screen
@@ -135,11 +133,11 @@ fun BookmarkButton(
     }
 }
 
-@Preview
-@Composable
-fun runPreview() {
-    PostCardSimple(post = post3)
-}
+//@Preview
+//@Composable
+//fun runPreview() {
+//    PostCardSimple(post = post3)
+//}
 
 fun toggleBookmark(postId: String) {
     with(JetnewsStatus) {

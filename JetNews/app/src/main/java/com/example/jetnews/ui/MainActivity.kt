@@ -18,6 +18,9 @@ package com.example.jetnews.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.ui.core.setContent
 import com.example.jetnews.data.getPostsWithImagesLoaded
 import com.example.jetnews.data.posts

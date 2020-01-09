@@ -50,9 +50,7 @@ import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextIndent
-import androidx.ui.tooling.preview.Preview
 import com.example.jetnews.R
-import com.example.jetnews.data.post3
 import com.example.jetnews.model.Markup
 import com.example.jetnews.model.MarkupType
 import com.example.jetnews.model.Metadata
@@ -282,8 +280,8 @@ private fun Markup.toAnnotatedStringItem(): AnnotatedString.Item<TextStyle> {
     }
 }
 
-@Preview
-@Composable
-fun preview() {
-    PostContent(post = post3)
-}
+//@Preview
+//@Composable
+//fun preview() {
+//    PostContent(post = post3)
+//}
