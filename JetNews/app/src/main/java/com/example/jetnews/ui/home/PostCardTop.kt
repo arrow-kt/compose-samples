@@ -37,8 +37,8 @@ import androidx.ui.material.Typography
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.withOpacity
 import androidx.ui.tooling.preview.Preview
+import com.example.jetnews.data._posts
 import com.example.jetnews.data.getPostsWithImagesLoaded
-import com.example.jetnews.data.posts
 import com.example.jetnews.model.Post
 import com.example.jetnews.ui.darkThemeColors
 import com.example.jetnews.ui.lightThemeColors
@@ -99,7 +99,7 @@ fun TutorialPreviewTemplate(
     typography: Typography = themeTypography
 ) {
     val context = +ambient(ContextAmbient)
-    val previewPosts = getPostsWithImagesLoaded(posts.subList(1, 2), context.resources)
+    val previewPosts = getPostsWithImagesLoaded(_posts.subList(1, 2), context.resources)
     val post = previewPosts[0]
     MaterialTheme(colors = colors, typography = typography) {
         Surface {
@@ -108,8 +108,8 @@ fun TutorialPreviewTemplate(
     }
 }
 
-//@Preview
-//@Composable
-//fun previewPostCardTop() {
+// @Preview
+// @Composable
+// fun previewPostCardTop() {
 //    PostCardTop(post = post2)
-//}
+// }

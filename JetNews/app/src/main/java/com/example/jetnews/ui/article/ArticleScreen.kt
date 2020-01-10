@@ -35,7 +35,7 @@ import arrow.fx.IO
 import arrow.fx.extensions.fx
 import arrow.fx.typeclasses.seconds
 import com.example.jetnews.R
-import com.example.jetnews.data.posts
+import com.example.jetnews.data._posts
 import com.example.jetnews.model.Post
 import com.example.jetnews.ui.Screen
 import com.example.jetnews.ui.VectorImageButton
@@ -84,6 +84,7 @@ sealed class ArticleViewState {
 @Composable
 fun ArticleScreen(postId: String) {
     // getting the post from our list of posts by Id
+
     //val post = posts.find { it.id == postId } ?: return
     val algebra = +memo { ArticleAlgebra() }
     val (articleViewState, articleViewStateCb) = +state { ArticleViewState.GetArticle.loading() }
@@ -92,7 +93,6 @@ fun ArticleScreen(postId: String) {
         val d = algebra.getArticle(postId, articleViewStateCb).unsafeRunAsyncCancellable { }
         onDispose(d)
     }
-
     ArticlePost(articleViewState)
 }
 
