@@ -19,30 +19,21 @@ package com.example.jetnews.ui.article
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.DrawableRes
-import androidx.compose.Composable
-import androidx.compose.ambient
-import androidx.compose.state
-import androidx.compose.unaryPlus
+import androidx.compose.*
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.Clickable
 import androidx.ui.graphics.vector.DrawVector
-import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.layout.Expanded
-import androidx.ui.layout.Height
-import androidx.ui.layout.Row
-import androidx.ui.layout.Size
-import androidx.ui.layout.Spacing
-import androidx.ui.material.AlertDialog
-import androidx.ui.material.Button
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.TextButtonStyle
-import androidx.ui.material.TopAppBar
+import androidx.ui.layout.*
+import androidx.ui.material.*
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.res.vectorResource
+import androidx.ui.tooling.preview.Preview
+import arrow.fx.IO
+import arrow.fx.extensions.fx
+import arrow.fx.typeclasses.seconds
 import com.example.jetnews.R
 import com.example.jetnews.data.posts
 import com.example.jetnews.model.Post
@@ -52,14 +43,62 @@ import com.example.jetnews.ui.home.BookmarkButton
 import com.example.jetnews.ui.home.isFavorite
 import com.example.jetnews.ui.home.toggleBookmark
 import com.example.jetnews.ui.navigateTo
+import kotlinx.coroutines.Dispatchers
+
+interface ArticleAlgebra {
+    fun getArticle(postId: String, cb: (ArticleViewState.GetArticle) -> Unit): IO<Unit>
+
+    companion object {
+        operator fun invoke() = object : ArticleAlgebra {
+            override fun getArticle(postId: String, cb: (ArticleViewState.GetArticle) -> Unit): IO<Unit> = IO.fx {
+                continueOn(Dispatchers.IO)
+                val post = posts.find { it.id == postId }
+                val articleViewState = post?.let { ArticleViewState.GetArticle.success(post) }
+                        ?: ArticleViewState.GetArticle.failure(Throwable("Couldn't find the expected post"))
+                !sleep(1.seconds)
+                continueOn(Dispatchers.Main)
+                !effect { cb(articleViewState) }
+            }
+        }
+    }
+}
+
+enum class TaskStatus {
+    SUCCESS, FAILURE, LOADING
+}
+
+sealed class ArticleViewState {
+    data class GetArticle(
+            val status: TaskStatus = TaskStatus.LOADING,
+            val post: Post? = null,
+            val error: Throwable? = null
+    ) {
+        companion object {
+            internal fun loading() = GetArticle(TaskStatus.LOADING)
+            internal fun success(post: Post) = GetArticle(TaskStatus.SUCCESS, post)
+            internal fun failure(error: Throwable?) = GetArticle(TaskStatus.FAILURE, error = error)
+        }
+    }
+}
 
 @Composable
 fun ArticleScreen(postId: String) {
-
-    var showDialog by +state { false }
     // getting the post from our list of posts by Id
-    val post = posts.find { it.id == postId } ?: return
+    //val post = posts.find { it.id == postId } ?: return
+    val algebra = +memo { ArticleAlgebra() }
+    val (articleViewState, articleViewStateCb) = +state { ArticleViewState.GetArticle.loading() }
 
+    +onActive {
+        val d = algebra.getArticle(postId, articleViewStateCb).unsafeRunAsyncCancellable { }
+        onDispose(d)
+    }
+
+    ArticlePost(articleViewState)
+}
+
+@Composable
+fun ArticlePost(postViewState: ArticleViewState.GetArticle) {
+    var showDialog by +state { false }
     if (showDialog) {
         FunctionalityNotAvailablePopup {
             showDialog = false
@@ -67,21 +106,29 @@ fun ArticleScreen(postId: String) {
     }
 
     Column {
+        var topAppBarTitle = ""
         TopAppBar(
-            title = {
-                Text(
-                    text = "Published in: ${post.publication?.name}",
-                    style = (+MaterialTheme.typography()).subtitle2
-                )
-            },
-            navigationIcon = {
-                VectorImageButton(R.drawable.ic_back) {
-                    navigateTo(Screen.Home)
+                title = {
+                    Text(
+                            text = topAppBarTitle,
+                            style = (+MaterialTheme.typography()).subtitle2
+                    )
+                },
+                navigationIcon = {
+                    VectorImageButton(R.drawable.ic_back) {
+                        navigateTo(Screen.Home)
+                    }
                 }
-            }
         )
-        PostContent(modifier = Flexible(1f), post = post)
-        BottomBar(post) { showDialog = true }
+        when(postViewState.status){
+            TaskStatus.SUCCESS -> {
+                topAppBarTitle = "Published in: ${postViewState.post!!.publication?.name}"
+                PostContent(modifier = Flexible(1f), post = postViewState.post)
+                BottomBar(postViewState.post) { showDialog = true }
+            }
+            TaskStatus.FAILURE -> TODO()
+            TaskStatus.LOADING -> TODO()
+        }
     }
 }
 
@@ -95,8 +142,8 @@ private fun BottomBar(post: Post, onUnimplementedAction: () -> Unit) {
                     onUnimplementedAction()
                 }
                 BookmarkButton(
-                    isBookmarked = isFavorite(postId = post.id),
-                    onBookmark = { toggleBookmark(postId = post.id) }
+                        isBookmarked = isFavorite(postId = post.id),
+                        onBookmark = { toggleBookmark(postId = post.id) }
                 )
                 BottomBarAction(R.drawable.ic_share) {
                     sharePost(post, context)
@@ -112,12 +159,12 @@ private fun BottomBar(post: Post, onUnimplementedAction: () -> Unit) {
 
 @Composable
 private fun BottomBarAction(
-    @DrawableRes id: Int,
-    onClick: () -> Unit
+        @DrawableRes id: Int,
+        onClick: () -> Unit
 ) {
     Ripple(
-        bounded = false,
-        radius = 24.dp
+            bounded = false,
+            radius = 24.dp
     ) {
         Clickable(onClick = onClick) {
             Container(modifier = Spacing(12.dp) wraps Size(24.dp, 24.dp)) {
@@ -130,20 +177,20 @@ private fun BottomBarAction(
 @Composable
 private fun FunctionalityNotAvailablePopup(onDismiss: () -> Unit) {
     AlertDialog(
-        onCloseRequest = onDismiss,
-        text = {
-            Text(
-                text = "Functionality not available \uD83D\uDE48",
-                style = (+MaterialTheme.typography()).body2
-            )
-        },
-        confirmButton = {
-            Button(
-                text = "CLOSE",
-                style = TextButtonStyle(),
-                onClick = onDismiss
-            )
-        }
+            onCloseRequest = onDismiss,
+            text = {
+                Text(
+                        text = "Functionality not available \uD83D\uDE48",
+                        style = (+MaterialTheme.typography()).body2
+                )
+            },
+            confirmButton = {
+                Button(
+                        text = "CLOSE",
+                        style = TextButtonStyle(),
+                        onClick = onDismiss
+                )
+            }
     )
 }
 
@@ -156,8 +203,14 @@ private fun sharePost(post: Post, context: Context) {
     context.startActivity(Intent.createChooser(intent, "Share post"))
 }
 
-//@Preview
-//@Composable
-//fun previewArticle() {
-//    ArticleScreen(post3.id)
-//}
+sealed class MVIViewState {
+    object Loading : MVIViewState()
+    class Error(val reason: String) : MVIViewState()
+    class Success(val result: String) : MVIViewState()
+}
+
+@Preview
+@Composable
+fun previewArticle() {
+    ArticleScreen(posts[4].id)
+}
