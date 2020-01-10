@@ -57,11 +57,11 @@ fun HomeScreen(openDrawer: () -> Unit) {
         onDispose(d)
     }
 
-    HomeScreen2(posts = posts, openDrawer = openDrawer)
+    RealHomeScreen(posts = posts, openDrawer = openDrawer)
 }
 
 @Composable
-private fun HomeScreen2(posts: List<Post>, openDrawer: () -> Unit) {
+private fun RealHomeScreen(posts: List<Post>, openDrawer: () -> Unit) {
     val postTop = posts.getOrNull(3)
     val postsSimple = posts.safeSublist(0, 2)
     val postsPopular = posts.safeSublist(2, 7)
