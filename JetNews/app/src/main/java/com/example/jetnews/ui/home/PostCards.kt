@@ -133,11 +133,11 @@ fun BookmarkButton(
     }
 }
 
-//@Preview
-//@Composable
-//fun runPreview() {
+// @Preview
+// @Composable
+// fun runPreview() {
 //    PostCardSimple(post = post3)
-//}
+// }
 
 fun toggleBookmark(postId: String) {
     with(JetnewsStatus) {

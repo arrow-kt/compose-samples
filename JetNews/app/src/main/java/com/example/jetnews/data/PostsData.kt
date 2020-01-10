@@ -1003,7 +1003,7 @@ private val post5 = Post(
     imageThumbId = R.drawable.post_5_thumb
 )
 
-var posts = listOf(
+var _posts = listOf(
     post1,
     post2,
     post3,

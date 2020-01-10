@@ -280,8 +280,8 @@ private fun Markup.toAnnotatedStringItem(): AnnotatedString.Item<TextStyle> {
     }
 }
 
-//@Preview
-//@Composable
-//fun preview() {
+// @Preview
+// @Composable
+// fun preview() {
 //    PostContent(post = post3)
-//}
+// }
