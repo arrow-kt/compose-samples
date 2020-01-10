@@ -31,73 +31,37 @@ import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.res.vectorResource
 import androidx.ui.tooling.preview.Preview
-import arrow.fx.IO
-import arrow.fx.extensions.fx
-import arrow.fx.typeclasses.seconds
+import arrow.fx.typeclasses.Disposable
 import com.example.jetnews.R
 import com.example.jetnews.data._posts
 import com.example.jetnews.model.Post
 import com.example.jetnews.ui.Screen
+import com.example.jetnews.ui.ScreenState
 import com.example.jetnews.ui.VectorImageButton
 import com.example.jetnews.ui.home.BookmarkButton
 import com.example.jetnews.ui.home.isFavorite
 import com.example.jetnews.ui.home.toggleBookmark
 import com.example.jetnews.ui.navigateTo
-import kotlinx.coroutines.Dispatchers
-
-interface ArticleAlgebra {
-    fun getArticle(postId: String, cb: (ArticleViewState.GetArticle) -> Unit): IO<Unit>
-
-    companion object {
-        operator fun invoke() = object : ArticleAlgebra {
-            override fun getArticle(postId: String, cb: (ArticleViewState.GetArticle) -> Unit): IO<Unit> = IO.fx {
-                continueOn(Dispatchers.IO)
-                val post = posts.find { it.id == postId }
-                val articleViewState = post?.let { ArticleViewState.GetArticle.success(post) }
-                        ?: ArticleViewState.GetArticle.failure(Throwable("Couldn't find the expected post"))
-                !sleep(1.seconds)
-                continueOn(Dispatchers.Main)
-                !effect { cb(articleViewState) }
-            }
-        }
-    }
-}
-
-enum class TaskStatus {
-    SUCCESS, FAILURE, LOADING
-}
-
-sealed class ArticleViewState {
-    data class GetArticle(
-            val status: TaskStatus = TaskStatus.LOADING,
-            val post: Post? = null,
-            val error: Throwable? = null
-    ) {
-        companion object {
-            internal fun loading() = GetArticle(TaskStatus.LOADING)
-            internal fun success(post: Post) = GetArticle(TaskStatus.SUCCESS, post)
-            internal fun failure(error: Throwable?) = GetArticle(TaskStatus.FAILURE, error = error)
-        }
-    }
-}
 
 @Composable
 fun ArticleScreen(postId: String) {
-    // getting the post from our list of posts by Id
-
-    //val post = posts.find { it.id == postId } ?: return
     val algebra = +memo { ArticleAlgebra() }
-    val (articleViewState, articleViewStateCb) = +state { ArticleViewState.GetArticle.loading() }
+    val (postState, postStateCb) = +state<ArticleState> { ScreenState.Loading }
+
+    fun load(): Disposable = algebra.getArticle(postId, postStateCb).unsafeRunAsyncCancellable { }
 
     +onActive {
-        val d = algebra.getArticle(postId, articleViewStateCb).unsafeRunAsyncCancellable { }
-        onDispose(d)
+        onDispose(load())
     }
-    ArticlePost(articleViewState)
+
+    PostStateLCE(postState) {
+        //TODO how to dispose this?
+        load()
+    }
 }
 
 @Composable
-fun ArticlePost(postViewState: ArticleViewState.GetArticle) {
+fun PostStateLCE(articleState: ArticleState, retryClick: () -> Unit) {
     var showDialog by +state { false }
     if (showDialog) {
         FunctionalityNotAvailablePopup {
@@ -106,7 +70,7 @@ fun ArticlePost(postViewState: ArticleViewState.GetArticle) {
     }
 
     Column {
-        var topAppBarTitle = ""
+        var topAppBarTitle by +state { "" }
         TopAppBar(
                 title = {
                     Text(
@@ -120,15 +84,38 @@ fun ArticlePost(postViewState: ArticleViewState.GetArticle) {
                     }
                 }
         )
-        when(postViewState.status){
-            TaskStatus.SUCCESS -> {
-                topAppBarTitle = "Published in: ${postViewState.post!!.publication?.name}"
-                PostContent(modifier = Flexible(1f), post = postViewState.post)
-                BottomBar(postViewState.post) { showDialog = true }
+        when (articleState) {
+            ScreenState.Loading -> PostLoading()
+            is ScreenState.Content -> {
+                topAppBarTitle = "Published in: ${articleState.value.publication?.name}"
+                PostContent(modifier = Flexible(1f), post = articleState.value)
+                BottomBar(articleState.value) { showDialog = true }
             }
-            TaskStatus.FAILURE -> TODO()
-            TaskStatus.LOADING -> TODO()
+            is ScreenState.Error -> PostError(retryClick)
         }
+    }
+}
+
+@Composable
+private fun PostLoading() {
+    Text(
+            modifier = Spacing(top = 16.dp, left = 16.dp, right = 16.dp),
+            text = "Loading content...",
+            style = ((+MaterialTheme.typography()).subtitle1).withOpacity(0.87f)
+    )
+}
+
+@Composable
+private fun PostError(retryClick: () -> Unit) {
+    Column(modifier = Spacing(16.dp)) {
+        Text(
+                text = "There was an error loading the content, please try again.",
+                style = ((+MaterialTheme.typography()).subtitle1).withOpacity(0.87f)
+        )
+        HeightSpacer(height = 16.dp)
+        Button(
+                text = "Retry", onClick = retryClick
+        )
     }
 }
 
@@ -203,14 +190,8 @@ private fun sharePost(post: Post, context: Context) {
     context.startActivity(Intent.createChooser(intent, "Share post"))
 }
 
-sealed class MVIViewState {
-    object Loading : MVIViewState()
-    class Error(val reason: String) : MVIViewState()
-    class Success(val result: String) : MVIViewState()
-}
-
 @Preview
 @Composable
 fun previewArticle() {
-    ArticleScreen(posts[4].id)
+    ArticleScreen(_posts[4].id)
 }
