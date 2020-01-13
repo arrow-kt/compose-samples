@@ -18,13 +18,20 @@ package com.example.jetnews
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.ui.core.Text
+import androidx.ui.core.setContent
+import androidx.ui.material.Button
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-
+        setContent {
+            Button {
+                Text("1")
+                Text("2")
+            }
+        }
     }
 }
