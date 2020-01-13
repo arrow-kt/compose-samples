@@ -19,16 +19,33 @@ package com.example.jetnews.ui.article
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.DrawableRes
-import androidx.compose.*
+import androidx.compose.Composable
+import androidx.compose.ambient
+import androidx.compose.memo
+import androidx.compose.onActive
+import androidx.compose.state
+import androidx.compose.unaryPlus
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.Clickable
 import androidx.ui.graphics.vector.DrawVector
-import androidx.ui.layout.*
-import androidx.ui.material.*
+import androidx.ui.layout.Column
+import androidx.ui.layout.Container
+import androidx.ui.layout.Expanded
+import androidx.ui.layout.Height
+import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.Row
+import androidx.ui.layout.Size
+import androidx.ui.layout.Spacing
+import androidx.ui.material.AlertDialog
+import androidx.ui.material.Button
+import androidx.ui.material.MaterialTheme
+import androidx.ui.material.TextButtonStyle
+import androidx.ui.material.TopAppBar
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
+import androidx.ui.material.withOpacity
 import androidx.ui.res.vectorResource
 import androidx.ui.tooling.preview.Preview
 import arrow.fx.typeclasses.Disposable
@@ -62,34 +79,34 @@ fun ArticleScreen(postId: String) {
 
 @Composable
 fun PostStateLCE(articleState: ArticleState, retryClick: () -> Unit) {
-    var showDialog by +state { false }
+    val (showDialog, showDialogCb) = +state { false }
     if (showDialog) {
         FunctionalityNotAvailablePopup {
-            showDialog = false
+            showDialogCb(true)
         }
     }
 
     Column {
-        var topAppBarTitle by +state { "" }
+        val (topAppBarTitle, topAppBarTitleCb) = +state { "" }
         TopAppBar(
-                title = {
-                    Text(
-                            text = topAppBarTitle,
-                            style = (+MaterialTheme.typography()).subtitle2
-                    )
-                },
-                navigationIcon = {
-                    VectorImageButton(R.drawable.ic_back) {
-                        navigateTo(Screen.Home)
-                    }
+            title = {
+                Text(
+                    text = topAppBarTitle,
+                    style = (+MaterialTheme.typography()).subtitle2
+                )
+            },
+            navigationIcon = {
+                VectorImageButton(R.drawable.ic_back) {
+                    navigateTo(Screen.Home)
                 }
+            }
         )
         when (articleState) {
             ScreenState.Loading -> PostLoading()
             is ScreenState.Content -> {
-                topAppBarTitle = "Published in: ${articleState.value.publication?.name}"
+                topAppBarTitleCb("Published in: ${articleState.value.publication?.name}")
                 PostContent(modifier = Flexible(1f), post = articleState.value)
-                BottomBar(articleState.value) { showDialog = true }
+                BottomBar(articleState.value) { showDialogCb(true) }
             }
             is ScreenState.Error -> PostError(retryClick)
         }
@@ -99,9 +116,9 @@ fun PostStateLCE(articleState: ArticleState, retryClick: () -> Unit) {
 @Composable
 private fun PostLoading() {
     Text(
-            modifier = Spacing(top = 16.dp, left = 16.dp, right = 16.dp),
-            text = "Loading content...",
-            style = ((+MaterialTheme.typography()).subtitle1).withOpacity(0.87f)
+        modifier = Spacing(top = 16.dp, left = 16.dp, right = 16.dp),
+        text = "Loading content...",
+        style = ((+MaterialTheme.typography()).subtitle1).withOpacity(0.87f)
     )
 }
 
@@ -109,12 +126,12 @@ private fun PostLoading() {
 private fun PostError(retryClick: () -> Unit) {
     Column(modifier = Spacing(16.dp)) {
         Text(
-                text = "There was an error loading the content, please try again.",
-                style = ((+MaterialTheme.typography()).subtitle1).withOpacity(0.87f)
+            text = "There was an error loading the content, please try again.",
+            style = ((+MaterialTheme.typography()).subtitle1).withOpacity(0.87f)
         )
         HeightSpacer(height = 16.dp)
         Button(
-                text = "Retry", onClick = retryClick
+            text = "Retry", onClick = retryClick
         )
     }
 }
@@ -129,8 +146,8 @@ private fun BottomBar(post: Post, onUnimplementedAction: () -> Unit) {
                     onUnimplementedAction()
                 }
                 BookmarkButton(
-                        isBookmarked = isFavorite(postId = post.id),
-                        onBookmark = { toggleBookmark(postId = post.id) }
+                    isBookmarked = isFavorite(postId = post.id),
+                    onBookmark = { toggleBookmark(postId = post.id) }
                 )
                 BottomBarAction(R.drawable.ic_share) {
                     sharePost(post, context)
@@ -146,12 +163,12 @@ private fun BottomBar(post: Post, onUnimplementedAction: () -> Unit) {
 
 @Composable
 private fun BottomBarAction(
-        @DrawableRes id: Int,
-        onClick: () -> Unit
+    @DrawableRes id: Int,
+    onClick: () -> Unit
 ) {
     Ripple(
-            bounded = false,
-            radius = 24.dp
+        bounded = false,
+        radius = 24.dp
     ) {
         Clickable(onClick = onClick) {
             Container(modifier = Spacing(12.dp) wraps Size(24.dp, 24.dp)) {
@@ -164,20 +181,20 @@ private fun BottomBarAction(
 @Composable
 private fun FunctionalityNotAvailablePopup(onDismiss: () -> Unit) {
     AlertDialog(
-            onCloseRequest = onDismiss,
-            text = {
-                Text(
-                        text = "Functionality not available \uD83D\uDE48",
-                        style = (+MaterialTheme.typography()).body2
-                )
-            },
-            confirmButton = {
-                Button(
-                        text = "CLOSE",
-                        style = TextButtonStyle(),
-                        onClick = onDismiss
-                )
-            }
+        onCloseRequest = onDismiss,
+        text = {
+            Text(
+                text = "Functionality not available \uD83D\uDE48",
+                style = (+MaterialTheme.typography()).body2
+            )
+        },
+        confirmButton = {
+            Button(
+                text = "CLOSE",
+                style = TextButtonStyle(),
+                onClick = onDismiss
+            )
+        }
     )
 }
 

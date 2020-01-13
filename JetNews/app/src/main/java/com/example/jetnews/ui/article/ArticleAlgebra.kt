@@ -25,13 +25,13 @@ interface ArticleAlgebra {
                 !sleep(2.seconds)
                 !effect(Dispatchers.Main) {
                     cb(
-                            // Emulate brittle BE
-                            if (!hasFailed || post == null) {
-                                hasFailed = true
-                                ScreenState.Error(Unit)
-                            } else {
-                                ScreenState.Content(post)
-                            }
+                        // Emulate brittle BE
+                        if (!hasFailed || post == null) {
+                            hasFailed = true
+                            ScreenState.Error(Unit)
+                        } else {
+                            ScreenState.Content(post)
+                        }
                     )
                 }
             }
