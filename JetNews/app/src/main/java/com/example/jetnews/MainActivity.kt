@@ -18,13 +18,14 @@ package com.example.jetnews
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import arrow.fx.IO
+import arrow.fx.extensions.io.async.effectMap
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
-
     }
 }
+
+val io = IO { 1 }.effectMap { 2 }
