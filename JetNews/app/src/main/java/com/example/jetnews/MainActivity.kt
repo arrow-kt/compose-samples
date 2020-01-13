@@ -18,13 +18,27 @@ package com.example.jetnews
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.state
+import androidx.compose.unaryPlus
+import androidx.ui.core.setContent
+import androidx.ui.material.DrawerState
+import androidx.ui.material.ModalDrawerLayout
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
-
+        setContent {
+            val (drawerState, onDrawerStateChange) = +state { DrawerState.Closed }
+            ModalDrawerLayout(
+                drawerState = drawerState,
+                onStateChange = onDrawerStateChange,
+                gesturesEnabled = drawerState == DrawerState.Opened,
+                drawerContent = {},
+                bodyContent = {
+                    throw Exception("some error that is swallowed")
+                }
+            )
+        }
     }
 }
