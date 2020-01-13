@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package com.example.jetnews.ui
+package com.example.jetnews
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.ui.core.setContent
-import com.example.jetnews.data._posts
-import com.example.jetnews.data.getPostsWithImagesLoaded
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        _posts = getPostsWithImagesLoaded(
-            _posts,
-            resources
-        )
-        setContent {
-            JetnewsApp()
-        }
+
+
+
     }
 }
