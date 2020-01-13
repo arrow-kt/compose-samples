@@ -21,6 +21,8 @@ import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.compose.Composable
 import androidx.compose.ambient
+import androidx.compose.memo
+import androidx.compose.onActive
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.ContextAmbient
@@ -32,6 +34,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.Expanded
 import androidx.ui.layout.Height
+import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.Row
 import androidx.ui.layout.Size
 import androidx.ui.layout.Spacing
@@ -42,11 +45,15 @@ import androidx.ui.material.TextButtonStyle
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
+import androidx.ui.material.withOpacity
 import androidx.ui.res.vectorResource
+import androidx.ui.tooling.preview.Preview
+import arrow.fx.typeclasses.Disposable
 import com.example.jetnews.R
 import com.example.jetnews.data._posts
 import com.example.jetnews.model.Post
 import com.example.jetnews.ui.Screen
+import com.example.jetnews.ui.ScreenState
 import com.example.jetnews.ui.VectorImageButton
 import com.example.jetnews.ui.home.BookmarkButton
 import com.example.jetnews.ui.home.isFavorite
@@ -55,22 +62,36 @@ import com.example.jetnews.ui.navigateTo
 
 @Composable
 fun ArticleScreen(postId: String) {
+    val algebra = +memo { ArticleAlgebra() }
+    val (postState, postStateCb) = +state<ArticleState> { ScreenState.Loading }
 
-    var showDialog by +state { false }
-    // getting the post from our list of posts by Id
-    val post = _posts.find { it.id == postId } ?: return
+    fun load(): Disposable = algebra.getArticle(postId, postStateCb).unsafeRunAsyncCancellable { }
 
+    +onActive {
+        onDispose(load())
+    }
+
+    PostStateLCE(postState) {
+        //TODO how to dispose this?
+        load()
+    }
+}
+
+@Composable
+fun PostStateLCE(articleState: ArticleState, retryClick: () -> Unit) {
+    val (showDialog, showDialogCb) = +state { false }
     if (showDialog) {
         FunctionalityNotAvailablePopup {
-            showDialog = false
+            showDialogCb(true)
         }
     }
 
     Column {
+        val (topAppBarTitle, topAppBarTitleCb) = +state { "" }
         TopAppBar(
             title = {
                 Text(
-                    text = "Published in: ${post.publication?.name}",
+                    text = topAppBarTitle,
                     style = (+MaterialTheme.typography()).subtitle2
                 )
             },
@@ -80,8 +101,38 @@ fun ArticleScreen(postId: String) {
                 }
             }
         )
-        PostContent(modifier = Flexible(1f), post = post)
-        BottomBar(post) { showDialog = true }
+        when (articleState) {
+            ScreenState.Loading -> PostLoading()
+            is ScreenState.Content -> {
+                topAppBarTitleCb("Published in: ${articleState.value.publication?.name}")
+                PostContent(modifier = Flexible(1f), post = articleState.value)
+                BottomBar(articleState.value) { showDialogCb(true) }
+            }
+            is ScreenState.Error -> PostError(retryClick)
+        }
+    }
+}
+
+@Composable
+private fun PostLoading() {
+    Text(
+        modifier = Spacing(top = 16.dp, left = 16.dp, right = 16.dp),
+        text = "Loading content...",
+        style = ((+MaterialTheme.typography()).subtitle1).withOpacity(0.87f)
+    )
+}
+
+@Composable
+private fun PostError(retryClick: () -> Unit) {
+    Column(modifier = Spacing(16.dp)) {
+        Text(
+            text = "There was an error loading the content, please try again.",
+            style = ((+MaterialTheme.typography()).subtitle1).withOpacity(0.87f)
+        )
+        HeightSpacer(height = 16.dp)
+        Button(
+            text = "Retry", onClick = retryClick
+        )
     }
 }
 
@@ -156,8 +207,8 @@ private fun sharePost(post: Post, context: Context) {
     context.startActivity(Intent.createChooser(intent, "Share post"))
 }
 
-// @Preview
-// @Composable
-// fun previewArticle() {
-//    ArticleScreen(post3.id)
-// }
+@Preview
+@Composable
+fun previewArticle() {
+    ArticleScreen(_posts[4].id)
+}
