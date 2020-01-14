@@ -82,7 +82,7 @@ fun PostStateLCE(articleState: ArticleState, retryClick: () -> Unit) {
     val (showDialog, showDialogCb) = +state { false }
     if (showDialog) {
         FunctionalityNotAvailablePopup {
-            showDialogCb(true)
+            showDialogCb(false)
         }
     }
 
