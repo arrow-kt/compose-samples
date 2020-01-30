@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
             resources
         )
         setContent {
-            JetnewsApp()
+            BrownbagApp()
         }
     }
 }

@@ -134,7 +134,8 @@ private fun TabWithSections(
                 Text(
                     text = section,
                     modifier = Spacing(16.dp),
-                    style = (+MaterialTheme.typography()).subtitle1)
+                    style = (+MaterialTheme.typography()).subtitle1
+                )
                 topics.forEach { topic ->
                     TopicItem(
                         getTopicKey(
@@ -164,7 +165,8 @@ private fun TopicItem(topicKey: String, itemTitle: String) {
         Text(
             text = itemTitle,
             modifier = Flexible(1f) wraps Gravity.Center wraps Spacing(16.dp),
-            style = (+MaterialTheme.typography()).subtitle1)
+            style = (+MaterialTheme.typography()).subtitle1
+        )
         val selected = isTopicSelected(topicKey)
         SelectTopicButton(
             modifier = Gravity.Center,

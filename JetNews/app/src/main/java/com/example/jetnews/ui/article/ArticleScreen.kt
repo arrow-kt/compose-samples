@@ -113,6 +113,7 @@ fun PostStateLCE(articleState: ArticleState, retryClick: () -> Unit) {
     }
 }
 
+@Preview("ScreenState.Loading")
 @Composable
 private fun PostLoading() {
     Text(
@@ -120,6 +121,18 @@ private fun PostLoading() {
         text = "Loading content...",
         style = ((+MaterialTheme.typography()).subtitle1).withOpacity(0.87f)
     )
+}
+
+@Preview("ScreenState.Content")
+@Composable
+private fun PreviewPostContent() {
+    PostContent(post = _posts[4])
+}
+
+@Preview("ScreenState.Error")
+@Composable
+private fun PreviewPostError() {
+    PostError(retryClick = {})
 }
 
 @Composable

@@ -18,23 +18,24 @@ interface ArticleAlgebra {
             // for example purposes only :)
             var hasFailed = false
 
-            override fun getArticle(postId: String, cb: (ArticleState) -> Unit): IO<Unit> = IO.fx {
-                !effect { cb(ScreenState.Loading) }
-                continueOn(Dispatchers.IO)
-                val post = _posts.find { it.id == postId }
-                !sleep(2.seconds)
-                !effect(Dispatchers.Main) {
-                    cb(
-                        // Emulate brittle BE
-                        if (!hasFailed || post == null) {
-                            hasFailed = true
-                            ScreenState.Error(Unit)
-                        } else {
-                            ScreenState.Content(post)
-                        }
-                    )
+            override fun getArticle(postId: String, cb: (ArticleState) -> Unit): IO<Unit> =
+                IO.fx {
+                    !effect { cb(ScreenState.Loading) }
+                    continueOn(Dispatchers.IO)
+                    val post = _posts.find { it.id == postId }
+                    !sleep(2.seconds)
+                    !effect(Dispatchers.Main) {
+                        cb(
+                            // Emulate brittle BE
+                            if (!hasFailed || post == null) {
+                                hasFailed = true
+                                ScreenState.Error(Unit)
+                            } else {
+                                ScreenState.Content(post)
+                            }
+                        )
+                    }
                 }
-            }
         }
     }
 }
