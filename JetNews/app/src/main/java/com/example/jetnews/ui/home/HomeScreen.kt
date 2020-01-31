@@ -49,6 +49,8 @@ import com.example.jetnews.ui.ScreenState
 import com.example.jetnews.ui.VectorImageButton
 import com.example.jetnews.ui.navigateTo
 
+// think of onCommit/onDispose as being more like onAttachedToWindow/onDetachedFromWindow for views
+
 @Composable
 fun HomeScreen(openDrawer: () -> Unit) {
     // TODO wish#1
@@ -60,9 +62,15 @@ fun HomeScreen(openDrawer: () -> Unit) {
 
     fun load(): Disposable = algebra.getPosts(postsCallback).unsafeRunAsyncCancellable { }
 
+    // only once
     +onActive {
         onDispose(load())
     }
+    // every repaint
+//    +onCommit {
+//        onDispose { }
+//    }
+//    +onDispose { }
 
     RealHomeScreen(postState, openDrawer, {
         //TODO how to dispose this?
